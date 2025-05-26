@@ -111,41 +111,59 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               SizedBox(
                 width: 250,
                 height: 250,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Circle border
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.blue,
-                          width: 2,
+                child: GestureDetector(
+                  onDoubleTap: () async {
+                    setState(() {
+                      _currentWater = 0;
+                    });
+                    await _prefs.setDouble('water', 0);
+                    _waterAnimation = Tween<double>(
+                      begin: 1,
+                      end: 0,
+                    ).animate(
+                      CurvedAnimation(
+                        parent: _animationController,
+                        curve: Curves.easeInOut,
+                      ),
+                    );
+                    _animationController.forward(from: 0);
+                  },
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Circle border
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.blue,
+                            width: 2,
+                          ),
                         ),
                       ),
-                    ),
-                    // Animated water level
-                    AnimatedBuilder(
-                      animation: _waterAnimation,
-                      builder: (context, child) {
-                        return CustomPaint(
-                          size: const Size(250, 250),
-                          painter: WaterPainter(
-                            waterLevel: _waterAnimation.value,
-                          ),
-                        );
-                      },
-                    ),
-                    // Water level text
-                    Text(
-                      '${(_currentWater / 1000).toStringAsFixed(1)}L',
-                      style: const TextStyle(
-                        fontSize: 32,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w300,
+                      // Animated water level
+                      AnimatedBuilder(
+                        animation: _waterAnimation,
+                        builder: (context, child) {
+                          return CustomPaint(
+                            size: const Size(250, 250),
+                            painter: WaterPainter(
+                              waterLevel: _waterAnimation.value,
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                  ],
+                      // Water level text
+                      Text(
+                        '${(_currentWater / 1000).toStringAsFixed(1)}L',
+                        style: const TextStyle(
+                          fontSize: 32,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 40),
