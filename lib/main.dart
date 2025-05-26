@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Water Tracker',
+      title: 'Watah',
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.black,
         textTheme: const TextTheme(
