@@ -198,11 +198,16 @@ class WaterPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
 
-    // Create water path
-    final waterPath = Path();
+    // Create circular clip path
+    final clipPath = Path()
+      ..addOval(Rect.fromCircle(center: center, radius: radius));
+    canvas.clipPath(clipPath);
+
+    // Calculate water height
     final waterHeight = size.height * (1 - waterLevel);
     
-    // Draw water surface with wave effect
+    // Create water path with wave effect
+    final waterPath = Path();
     waterPath.moveTo(0, waterHeight);
     
     // Create wave effect
