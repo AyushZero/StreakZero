@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Watah',
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.black,
+        scaffoldBackgroundColor: const Color(0xFF1A1A1A),
         textTheme: const TextTheme(
           bodyLarge: TextStyle(color: Colors.white, fontFamily: 'Inter'),
           bodyMedium: TextStyle(color: Colors.white, fontFamily: 'Inter'),
@@ -135,7 +135,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: Colors.blue,
+                              color: Colors.white,
                               width: 2,
                             ),
                           ),
@@ -190,46 +190,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white),
+                        border: Border.all(color: Colors.white.withOpacity(0.3)),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Edit Title'),
-                                  content: TextField(
-                                    controller: _textControllers[index],
-                                    decoration: const InputDecoration(
-                                      hintText: 'Enter title',
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        setState(() {});
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text('Save'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            child: Text(
-                              _textControllers[index].text,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
+                          TextField(
+                            controller: _textControllers[index],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 8),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -288,7 +264,7 @@ class WaterPainter extends CustomPainter {
 
     // Draw water
     final waterPaint = Paint()
-      ..color = Colors.blue.withOpacity(0.5)
+      ..color = Colors.white.withOpacity(0.3)
       ..style = PaintingStyle.fill;
     canvas.drawPath(waterPath, waterPaint);
 
