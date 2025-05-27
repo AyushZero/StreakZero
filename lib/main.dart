@@ -196,14 +196,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            '${_counters[index]}',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
                           GestureDetector(
                             onTap: () {
                               showDialog(
@@ -238,6 +230,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                 fontSize: 16,
                                 color: Colors.white,
                               ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${_counters[index]}',
+                            style: const TextStyle(
+                              fontSize: 24,
+                              color: Colors.white,
                             ),
                           ),
                         ],
