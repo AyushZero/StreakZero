@@ -40,6 +40,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   late SharedPreferences _prefs;
   late AnimationController _animationController;
   late Animation<double> _waterAnimation;
+  List<int> _counters = List.filled(4, 0);
+  List<TextEditingController> _textControllers = List.generate(
+    4,
+    (index) => TextEditingController(text: 'Untitled'),
+  );
 
   @override
   void initState() {
@@ -60,6 +65,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void dispose() {
     _animationController.dispose();
+    for (var controller in _textControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -77,7 +85,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     });
     await _prefs.setDouble('water', _currentWater);
 
-    // Animate the water level change
     _waterAnimation = Tween<double>(
       begin: previousWater / _dailyGoal,
       end: _currentWater / _dailyGoal,
@@ -94,25 +101,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Water Tracker',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w300,
-                ),
-              ),
-              const SizedBox(height: 40),
-              // Water circle visualization
-              SizedBox(
-                width: 250,
-                height: 250,
+        child: Column(
+          children: [
+            // Top section with water circle (2/6 of the screen)
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 2 / 6,
+              child: Center(
                 child: GestureDetector(
-                  onDoubleTap: () async {
+                  onTap: () => _addWater(100),
+                  onLongPress: () async {
                     setState(() {
                       _currentWater = 0;
                     });
@@ -128,78 +125,129 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     );
                     _animationController.forward(from: 0);
                   },
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Circle border
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.blue,
-                            width: 2,
+                  child: SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.blue,
+                              width: 2,
+                            ),
                           ),
                         ),
-                      ),
-                      // Animated water level
-                      AnimatedBuilder(
-                        animation: _waterAnimation,
-                        builder: (context, child) {
-                          return CustomPaint(
-                            size: const Size(250, 250),
-                            painter: WaterPainter(
-                              waterLevel: _waterAnimation.value,
-                            ),
-                          );
-                        },
-                      ),
-                      // Water level text
-                      Text(
-                        '${(_currentWater / 1000).toStringAsFixed(1)}L',
-                        style: const TextStyle(
-                          fontSize: 32,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w300,
+                        AnimatedBuilder(
+                          animation: _waterAnimation,
+                          builder: (context, child) {
+                            return CustomPaint(
+                              size: const Size(200, 200),
+                              painter: WaterPainter(
+                                waterLevel: _waterAnimation.value,
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                    ],
+                        Text(
+                          '${(_currentWater / 1000).toStringAsFixed(1)}L',
+                          style: const TextStyle(
+                            fontSize: 32,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
-              // Water intake buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => _addWater(250),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
+            ),
+            // Bottom section with 5 squares (4/6 of the screen)
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 1,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: 4,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _counters[index]++;
+                      });
+                    },
+                    onLongPress: () {
+                      setState(() {
+                        _counters[index] = 0;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '${_counters[index]}',
+                            style: const TextStyle(
+                              fontSize: 24,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Edit Title'),
+                                  content: TextField(
+                                    controller: _textControllers[index],
+                                    decoration: const InputDecoration(
+                                      hintText: 'Enter title',
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {});
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('Save'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            child: Text(
+                              _textControllers[index].text,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: const Text('1 Glass (250ml)'),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: () => _addWater(500),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                    ),
-                    child: const Text('500ml'),
-                  ),
-                ],
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
